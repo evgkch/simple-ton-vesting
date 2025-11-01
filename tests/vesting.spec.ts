@@ -46,11 +46,6 @@ describe('Vesting Test', () => {
         return available > 0n ? available : 0n;
     }
 
-    // Вспомогательная функция для точных вычислений с bigint
-    function calculateExpectedBalance(initialBalance: bigint, claimedAmount: bigint): bigint {
-        return initialBalance - claimedAmount;
-    }
-
     beforeAll(async () => {
         blockchain = await Blockchain.create();
         blockchain.now = Math.floor(Date.now() / 1000);
@@ -115,7 +110,7 @@ describe('Vesting Test', () => {
         });
     });
 
-    it('Claim -> ERROR_NO_AVALIABLE_AMOUNT_TO_WITHDRAW (t < startTime)', async () => {
+    it('Claim -> ERROR_NO_AVALIABLE_AMOUNT_TO_WITHDRAW \n\t WHERE t < startTime', async () => {
         const data = vestingItem.getCachedData();
         blockchain.now = data.startTime;
 
@@ -195,7 +190,7 @@ describe('Vesting Test', () => {
         });
 
         // Проверяем баланс контракта
-        const expectedBalance = calculateExpectedBalance(initialContractBalance, totalClaimed);
+        const expectedBalance = initialContractBalance - totalClaimed;
         expect(await vestingItem.getContractBalance()).toEqual(expectedBalance);
 
         // Проверяем что доступная сумма теперь 0
@@ -256,7 +251,7 @@ describe('Vesting Test', () => {
         });
 
         // Проверяем баланс контракта
-        const expectedBalance = calculateExpectedBalance(initialContractBalance, totalClaimed);
+        const expectedBalance = initialContractBalance - totalClaimed;
         expect(await vestingItem.getContractBalance()).toEqual(expectedBalance);
 
         expect(await vestingItem.getAvaliableAmountToWithdraw()).toEqual(0n);
@@ -290,7 +285,7 @@ describe('Vesting Test', () => {
         });
 
         // Проверяем баланс контракта
-        const expectedBalance = calculateExpectedBalance(initialContractBalance, totalClaimed);
+        const expectedBalance = initialContractBalance - totalClaimed;
         expect(await vestingItem.getContractBalance()).toEqual(expectedBalance);
 
         expect(await vestingItem.getAvaliableAmountToWithdraw()).toEqual(0n);
@@ -324,7 +319,7 @@ describe('Vesting Test', () => {
         });
 
         // Проверяем баланс контракта (должен быть 0)
-        const expectedBalance = calculateExpectedBalance(initialContractBalance, totalClaimed);
+        const expectedBalance = initialContractBalance - totalClaimed;
         expect(await vestingItem.getContractBalance()).toEqual(expectedBalance);
         expect(expectedBalance).toEqual(0n);
 
