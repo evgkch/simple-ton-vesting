@@ -1,0 +1,5 @@
+const int OP_CLAIM = "claim"c;
+const int OP_WITHDRAW = "withdraw"c;
+
+const int ERROR_VESTING_NOT_STARTED = 500;
+const int ERROR_NO_AVALIABLE_AMOUNT_TO_WITHDRAW = 501;

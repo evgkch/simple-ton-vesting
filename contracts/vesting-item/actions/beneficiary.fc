@@ -1,0 +1,39 @@
+;; Private method
+() actions::beneficiary::_send_withdraw() impure inline {
+    var msg = begin_cell()
+        .store_msg_flags_and_address_none(NON_BOUNCEABLE)
+        .store_slice(storage::beneficiary_address)
+        .store_coins(0)
+        .store_prefix_only_body()
+        .store_op(OP_WITHDRAW);
+    send_raw_message(msg.end_cell(), SEND_MODE_CARRY_ALL_BALANCE | SEND_MODE_IGNORE_ERRORS);
+}
+
+;; Public method
+int actions::beneficiary::get_avaliable_amount_to_withdraw() inline {
+    int dt = min(storage::duration, max(0, now() - storage::start_time));
+    if (dt < storage::cliff_period) {
+        return 0;
+    }
+    int passed_steps = dt / storage::period;
+    int total_steps = storage::duration / storage::period;
+    int progress_amount = muldiv(storage::unlockable_amount, passed_steps, total_steps);
+    return max(0, progress_amount - storage::released_amount);
+}
+
+;; Public method
+() actions::beneficiary::claim(slice sender_address) impure inline {
+    auth_sender(sender_address, storage::beneficiary_address);
+
+    throw_unless(ERROR_VESTING_NOT_STARTED, now() >= storage::start_time);
+
+    int amount_to_withdraw = actions::beneficiary::get_avaliable_amount_to_withdraw();
+    throw_unless(ERROR_NO_AVALIABLE_AMOUNT_TO_WITHDRAW, amount_to_withdraw > 0);
+
+    storage::released_amount += amount_to_withdraw;
+    raw_reserve(storage::unlockable_amount - storage::released_amount, SEND_MODE_BOUNCE_ON_ACTION_FAIL);
+
+    actions::beneficiary::_send_withdraw();
+
+    storage::save();
+}

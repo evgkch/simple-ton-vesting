@@ -1,0 +1,18 @@
+const int TIME_SIZE = 32;
+(slice, int) ~load_time(slice s) impure inline {
+  return s.load_uint(TIME_SIZE);
+}
+builder store_time(builder b, int value) impure inline {
+  return b.store_uint(value, TIME_SIZE);
+}
+
+const int ERROR_UNAUTHORIZED = 300;
+() auth_sender(slice sender_address, slice target_address) impure inline  {
+  throw_unless(ERROR_UNAUTHORIZED, equal_slices_bits(sender_address, target_address));
+}
+
+const int ERROR_DIFFERENT_CHAINS = 333;
+() force_chain(slice address) impure inline {
+  (int wc, _) = parse_std_addr(address);
+  throw_unless(ERROR_DIFFERENT_CHAINS, wc == BASECHAIN);
+}

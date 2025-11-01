@@ -1,0 +1,20 @@
+export const OP_SIZE = 32;
+export const QUERY_ID_SIZE = 64;
+export const TIME_SIZE = 32;
+
+export const OP_EXCESSES = 0xd53276db;
+export const OP_CLAIM = 0xa769de27;
+export const OP_WITHDRAW = 0xb5de5f9e;
+
+export const ERROR_UNAUTHORIZED = 300;
+export const ERROR_DIFFERENT_CHAINS = 333;
+
+export const ERROR_UNVALID_VESTING_UNLOCKABLE_AMOUNT = 400;
+export const ERROR_UNVALID_VESTING_DURATION = 401;
+export const ERROR_UNVALID_VESTING_PERIOD = 402;
+export const ERROR_UNVALID_VESTING_CLIFF_PERIOD = 403;
+
+export const ERROR_VESTING_NOT_STARTED = 500;
+export const ERROR_NO_AVALIABLE_AMOUNT_TO_WITHDRAW = 501;
+
+export const ACTION_ERROR_NOT_ENOUTH_TONCOIN = 37;

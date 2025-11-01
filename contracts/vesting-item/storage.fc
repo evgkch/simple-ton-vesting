@@ -1,0 +1,36 @@
+global slice storage::beneficiary_address;
+global int   storage::unlockable_amount;
+global int   storage::released_amount;
+global int   storage::start_time;
+global int   storage::duration;
+global int   storage::period;
+global int   storage::cliff_period;
+
+() storage::load() impure inline {
+    slice ds = get_data().begin_parse();
+    storage::beneficiary_address = ds~load_msg_addr();
+    storage::unlockable_amount   = ds~load_coins();
+    storage::start_time          = ds~load_time();
+    storage::duration            = ds~load_time();
+    storage::period              = ds~load_time();
+    storage::cliff_period        = ds~load_time();
+    if (ds.slice_empty?()) {
+        storage::released_amount = 0;
+    } else {
+        storage::released_amount = ds~load_coins();
+    }
+    ds.end_parse();
+}
+
+() storage::save() impure inline_ref {
+    set_data(begin_cell()
+        .store_slice(storage::beneficiary_address)
+        .store_coins(storage::unlockable_amount)
+        .store_time(storage::start_time)
+        .store_time(storage::duration)
+        .store_time(storage::period)
+        .store_time(storage::cliff_period)
+        .store_coins(storage::released_amount)
+        .end_cell()
+    );
+}

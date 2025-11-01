@@ -1,0 +1,22 @@
+int get_avaliable_amount_to_withdraw() inline method_id {
+    storage::load();
+    return actions::beneficiary::get_avaliable_amount_to_withdraw();
+}
+
+int get_contract_balance() inline method_id {
+    var [balance, _] = get_balance();
+    return balance;
+}
+
+(slice, int, int, int, int, int, int) get_contract_data() inline method_id {
+    storage::load();
+    return (
+        storage::beneficiary_address,
+        storage::unlockable_amount,
+        storage::released_amount,
+        storage::start_time,
+        storage::duration,
+        storage::period,
+        storage::cliff_period
+    );
+}

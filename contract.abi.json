@@ -1,0 +1,73 @@
+{
+  "0xfff8a9de38e0dbbab57bd835a077cd64ecb3c3eb208aaaa1af718787f975587e": "VestingDeployerContract",
+  "0x5d21ffcd6def29ea00f825a72d86ae524729c3c948b0cd02dd71a09c12ecd2fb": "VestingItemContract",
+  "VestingDeployerContract": {
+    "receivers": [
+      {
+        "receiver": "internal",
+        "message": {
+          "kind": "typed",
+          "type": "notSupported"
+        }
+      },
+      {
+        "receiver": "internal",
+        "message": {
+          "kind": "typed",
+          "type": "0xd53276db"
+        }
+      }
+    ],
+    "types": [
+      {
+        "name": "notSupported",
+        "header": 4294967295
+      },
+      {
+        "name": "0xd53276db",
+        "header": 3576854235
+      }
+    ],
+    "name": "VestingDeployerContract"
+  },
+  "VestingItemContract": {
+    "receivers": [
+      {
+        "receiver": "internal",
+        "message": {
+          "kind": "typed",
+          "type": "0xa769de27"
+        }
+      },
+      {
+        "receiver": "internal",
+        "message": {
+          "kind": "typed",
+          "type": "notSupported"
+        }
+      },
+      {
+        "receiver": "internal",
+        "message": {
+          "kind": "typed",
+          "type": "0xb5de5f9e"
+        }
+      }
+    ],
+    "types": [
+      {
+        "name": "0xa769de27",
+        "header": 2808733223
+      },
+      {
+        "name": "notSupported",
+        "header": 4294967295
+      },
+      {
+        "name": "0xb5de5f9e",
+        "header": 3051249566
+      }
+    ],
+    "name": "VestingItemContract"
+  }
+}

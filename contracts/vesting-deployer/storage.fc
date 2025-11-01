@@ -1,0 +1,9 @@
+global slice storage::deployer_address;
+
+() storage::load() impure inline {
+    var ds = get_data().begin_parse();
+    ds~skip_bits(5); ;; Padding
+    storage::deployer_address = ds~load_msg_addr();
+    ds~skip_bits(256);  ;; Skip target address
+    ds.end_parse();
+}

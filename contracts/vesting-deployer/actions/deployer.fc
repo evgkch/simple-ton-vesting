@@ -1,0 +1,52 @@
+;; Private method
+;; Check vesting params and return total amount to unlock
+int actions::deployer::_ensure_data_ok(cell data) impure inline {
+    slice ds = data.begin_parse();
+    ;; Check beneficiaty
+    var beneficiaty_address = ds~load_msg_addr();
+    force_chain(beneficiaty_address);
+    ;; Check unlockable amount
+    var unlockable_amount = ds~load_coins();
+    throw_unless(ERROR_UNVALID_VESTING_UNLOCKABLE_AMOUNT, unlockable_amount > 0);
+    ;; Skip start time
+    ds~skip_bits(TIME_SIZE);
+    ;; Check duration
+    int duration = ds~load_time();
+    throw_unless(ERROR_UNVALID_VESTING_DURATION, duration > 0);
+    ;; Check period
+    int period = ds~load_time();
+    throw_unless(ERROR_UNVALID_VESTING_PERIOD, period > 0);
+    int steps = duration / period;
+    throw_unless(ERROR_UNVALID_VESTING_PERIOD, steps * period == duration);
+    ;; Check cliff period
+    int cliff_period = ds~load_time();
+    throw_unless(ERROR_UNVALID_VESTING_CLIFF_PERIOD, cliff_period < duration);
+
+    return unlockable_amount;
+}
+
+;; Private method
+;; WARN: SEND_MODE_CARRY_ALL_BALANCE
+() actions::deployer::_send_excesses() impure inline {
+    var msg = begin_cell()
+        .store_msg_flags_and_address_none(NON_BOUNCEABLE)
+        .store_slice(storage::deployer_address)
+        .store_coins(0)
+        .store_prefix_only_body()
+        .store_op(OP_EXCESSES);
+    send_raw_message(msg.end_cell(), SEND_MODE_CARRY_ALL_BALANCE | SEND_MODE_IGNORE_ERRORS);
+}
+
+;; Public method
+() actions::deployer::deploy(slice sender_address, cell code, cell data) impure inline {
+    ;; Auth deployer
+    auth_sender(sender_address, storage::deployer_address);
+    int unlockable_amount = actions::deployer::_ensure_data_ok(data);
+    ;; Reserve unlockable amount
+    raw_reserve(unlockable_amount, SEND_MODE_BOUNCE_ON_ACTION_FAIL);
+    ;; Send execess to deployer
+    actions::deployer::_send_excesses();
+    ;; Update data & code
+    set_code(code);
+    set_data(data);
+}
