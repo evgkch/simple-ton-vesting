@@ -2,64 +2,52 @@
 
 ## Архитектура системы
 
-### 1. Vesting Deployer
-**Фабрика для развертывания контрактов вестинга**
+### Контракты
+- **Vesting Deployer** - фабрика для создания контрактов вестинга
+- **Vesting Item** - индивидуальный контракт вестинга (развертывается как библиотека в мастерчейне)
 
-**Функции**:
-- Создание контрактов вестинга
-- Валидация параметров
-- Резервирование средств
+## Схема сообщений
 
-**Параметры**:
-- `beneficiary_address` - адрес получателя
-- `unlockable_amount` - сумма вестинга (> 0)
-- `start_time` - время начала
-- `duration` - продолжительность (> 0)
-- `period` - период распределения (> 0)
-- `cliff_period` - cliff-период (< duration)
-
-### 2. Vesting Item
-**Индивидуальный контракт вестинга**
-
-**Методы**:
-- `claim()` - вывод средств (только beneficiary)
-- `get_avaliable_amount_to_withdraw()` - проверка доступной суммы
-- `get_contract_data()` - данные контракта
-
-## Механика вестинга
-
-### Формула расчета:
+### Развертывание библиотеки кода
 ```
-dt = min(duration, max(0, now - start_time))
-passed_steps = dt / period
-total_steps = duration / period
-progress_amount = unlockable_amount * passed_steps / total_steps
-available_amount = max(0, progress_amount - released_amount)
+User → Librarian: deploy(code)
+    Librarian → Masterchain: set_lib_code(code, 2)  // публичная библиотека
 ```
 
-## Скрипты управления
+### Создание контракта вестинга
+```
+User → VestingDeployer: deploy(sender, library_code, vesting_data)
+    VestingDeployer → VestingDeployer: _ensure_data_ok(data)
+    VestingDeployer → VestingDeployer: raw_reserve(amount)
+    VestingDeployer → NewContract: set_code(library_code) + set_data(vesting_data)
+```
 
-### Развертывание системы
+### Вывод средств
+```
+Beneficiary → VestingItem: claim()
+    VestingItem → VestingItem: get_avaliable_amount_to_withdraw()
+    VestingItem → VestingItem: raw_reserve(remaining)
+    VestingItem → Beneficiary: _send_withdraw()
+```
+
+## Управление библиотечным кодом
+
+Vesting Item уже развернута как публичная библиотека в мастерчейне
+
 ```bash
+# Развертывание библиотеки
+npm start deployVestingItemLibrary
+
+# Создание контракта вестинга
 npm start deployVesting
-```
-- Создание фабрики VestingDeployer
-- Интерактивное создание контракта вестинга
-- Резервирование средств
 
-### Управление контрактом
-```bash
+# Управление существующим контрактом
 npm start vestingController
 ```
-- Просмотр данных контракта
-- Проверка доступной суммы
-- Вывод средств (claim)
 
-## Тестирование
-
-**Код полностью покрыт тестами**
-```bash
-npm test
+## Формула расчета
+```
+available = (unlockable_amount * min(duration, now - start_time) / duration) - released_amount
 ```
 
-Тесты включают валидацию параметров, расчеты доступных средств, авторизацию и интеграционные тесты.
+**Код покрыт тестами** - включает валидацию параметров, расчеты и авторизацию.
