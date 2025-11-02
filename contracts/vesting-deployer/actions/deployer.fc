@@ -22,6 +22,8 @@ int actions::deployer::_ensure_data_ok(cell data) impure inline {
     int cliff_period = ds~load_time();
     throw_unless(ERROR_UNVALID_VESTING_CLIFF_PERIOD, cliff_period < duration);
 
+    ds.end_parse();
+
     return unlockable_amount;
 }
 
